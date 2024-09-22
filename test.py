@@ -119,6 +119,29 @@ calculate_stochastic_oscillator(stock_data)
 # Display the last few rows to check the Stochastic Oscillator
 print(stock_data[['Close', '%K', '%D']].tail(10))
 
+# Step 8: Visualize the Stochastic Oscillator
+def plot_stochastic_oscillator(data):
+    plt.figure(figsize=(14, 7))
+    plt.plot(data['%K'], label='%K', color='blue', alpha=0.5)
+    plt.plot(data['%D'], label='%D', color='orange', alpha=0.7)
+
+    # Adding horizontal lines for overbought and oversold levels
+    plt.axhline(80, linestyle='--', alpha=0.5, color='red')
+    plt.axhline(20, linestyle='--', alpha=0.5, color='green')
+
+    plt.title('Stochastic Oscillator')
+    plt.xlabel('Date')
+    plt.ylabel('Stochastic Value')
+    plt.legend()
+    plt.grid()
+    plt.tight_layout()
+
+    # Save the plot as a PNG image
+    plt.savefig('stochastic_oscillator.png')
+    plt.show()
+
+# Call the plotting function
+plot_stochastic_oscillator(stock_data)
 
 
 # Visualization
