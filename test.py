@@ -144,6 +144,63 @@ def plot_stochastic_oscillator(data):
 plot_stochastic_oscillator(stock_data)
 
 
+# Step 9: Combine Indicators for Buy/Sell Signals
+def combine_indicators(data):
+    buy_signals = []
+    sell_signals = []
+
+    for i in range(len(data)):
+        # Buy signal condition
+        if (data['Close'][i] < data['Lower_Band'][i]) and (data['%K'][i] > data['%D'][i]):
+            buy_signals.append(data['Close'][i])
+            sell_signals.append(float('nan'))  # No sell signal at this point
+        # Sell signal condition
+        elif (data['Close'][i] > data['Upper_Band'][i]) and (data['%K'][i] < data['%D'][i]):
+            sell_signals.append(data['Close'][i])
+            buy_signals.append(float('nan'))  # No buy signal at this point
+        else:
+            buy_signals.append(float('nan'))
+            sell_signals.append(float('nan'))
+
+    data['Buy_Signal'] = buy_signals
+    data['Sell_Signal'] = sell_signals
+
+# Apply the combined indicators to the stock data
+combine_indicators(stock_data)
+
+# Display the last few rows to check the new signals
+print(stock_data[['Close', 'Lower_Band', 'Upper_Band', '%K', '%D', 'Buy_Signal', 'Sell_Signal']].tail(10))
+
+# Step 10: Visualize Stock Price with Buy/Sell Signals
+def plot_signals(data):
+    plt.figure(figsize=(14, 7))
+    
+    # Plot close price and Bollinger Bands
+    plt.plot(data['Close'], label='Close Price', color='blue', alpha=0.5)
+    plt.plot(data['Upper_Band'], label='Upper Band', color='green', linestyle='--', alpha=0.7)
+    plt.plot(data['Lower_Band'], label='Lower Band', color='red', linestyle='--', alpha=0.7)
+    
+    # Plot buy signals
+    plt.scatter(data.index, data['Buy_Signal'], label='Buy Signal', marker='^', color='green', alpha=1, s=100)
+    
+    # Plot sell signals
+    plt.scatter(data.index, data['Sell_Signal'], label='Sell Signal', marker='v', color='red', alpha=1, s=100)
+    
+    plt.title('Stock Price with Buy/Sell Signals')
+    plt.xlabel('Date')
+    plt.ylabel('Price')
+    plt.legend()
+    plt.grid()
+    plt.tight_layout()
+    
+    # Save the plot as a PNG image
+    plt.savefig('stock_signals.png')
+    plt.show()
+
+# Call the plotting function
+plot_signals(stock_data)
+
+
 # Visualization
 fig, (ax1, ax2) = plt.subplots(2, figsize=(12, 8))
 
