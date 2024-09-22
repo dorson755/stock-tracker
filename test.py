@@ -102,6 +102,25 @@ def plot_bollinger_bands(data):
 # Call the plotting function
 plot_bollinger_bands(stock_data)
 
+# Step 7: Calculate Stochastic Oscillator
+def calculate_stochastic_oscillator(data, window=14):
+    # Calculate the lowest low and highest high over the window
+    lowest_low = data['Close'].rolling(window=window).min()
+    highest_high = data['Close'].rolling(window=window).max()
+    
+    # Calculate %K
+    data['%K'] = 100 * ((data['Close'] - lowest_low) / (highest_high - lowest_low))
+    # Calculate %D as a 3-period SMA of %K
+    data['%D'] = data['%K'].rolling(window=3).mean()
+
+# Add Stochastic Oscillator to the stock data
+calculate_stochastic_oscillator(stock_data)
+
+# Display the last few rows to check the Stochastic Oscillator
+print(stock_data[['Close', '%K', '%D']].tail(10))
+
+
+
 # Visualization
 fig, (ax1, ax2) = plt.subplots(2, figsize=(12, 8))
 
