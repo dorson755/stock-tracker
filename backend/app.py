@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import yfinance as yf
 import pandas as pd
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS
 
 def calculate_indicators(data):
     # Simple Moving Average (SMA)
