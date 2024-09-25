@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        img {
+            width: 100%;
+            max-width: 700px;
+        }
+    </style>
+    <script>
+        // Auto-refresh the charts every 30 seconds
+        setInterval(function() {
+            document.getElementById("stock-chart-sma").src = document.getElementById("stock-chart-sma").src + '?' + new Date().getTime();
+            document.getElementById("stock-chart-bb").src = document.getElementById("stock-chart-bb").src + '?' + new Date().getTime();
+        }, 30000);  // Refresh every 30 seconds
+    </script>
+</head>
+<body>
+    <h1>Stock Tracker</h1>
+    
+    <form method="POST" action="/">
+        <label for="symbol">Enter Stock Symbol:</label>
+        <input type="text" id="symbol" name="symbol" value="{{ symbol }}" required>
+        <button type="submit">Track</button>
+    </form>
+
+    <h2>{{ symbol }} - Stock Price and Indicators</h2>
+    
+    <!-- Display Stock Price with SMA -->
+    <h3>Stock Price and SMA</h3>
+    <img id="stock-chart-sma" src="{{ url_for('static', filename='images/stock_price_sma.png') }}" alt="Stock Price and SMA Chart">
+    
+    <!-- Display Bollinger Bands -->
+    <h3>Bollinger Bands</h3>
+    <img id="stock-chart-bb" src="{{ url_for('static', filename='images/bollinger_bands.png') }}" alt="Bollinger Bands Chart">
+
+</body>
+</html>

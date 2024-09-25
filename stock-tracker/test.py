@@ -193,8 +193,8 @@ def plot_signals(data):
     plt.grid()
     plt.tight_layout()
     
-    # Save the plot as a PNG image
-    plt.savefig('stock_signals.png')
+    # Save the plot to static/images folder as a PNG image
+    plt.savefig('static/images/stock_signals.png')
     plt.show()
 
 # Call the plotting function
