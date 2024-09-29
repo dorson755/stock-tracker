@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="text-center">User Dashboard</h1>
+
+<h2>Your Favorite Stocks</h2>
+<ul>
+    {% for stock in favorite_stocks %}
+    <li>{{ stock.symbol }}</li>
+    {% endfor %}
+</ul>
+
+<h2>Latest Bloomberg Tweets</h2>
+<ul>
+    {% for tweet in tweets %}
+    <li>
+        <strong>{{ tweet.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</strong>: {{ tweet.text }}
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

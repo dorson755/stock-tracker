@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Stock News{% endblock %}
+
+{% block content %}
+<h1>Latest Stock News</h1>
+<ul>
+    {% for news in stock_news %}
+        <li>{{ news.title }} - <a href="{{ news.url }}">Read more</a></li>
+    {% endfor %}
+</ul>
+{% endblock %}
