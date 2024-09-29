@@ -1,31 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Tracker</title>
-</head>
-<body>
-    <h1>Welcome to the Stock Tracker</h1>
-    
-    <h2>Search for Stock</h2>
-    <form action="{{ url_for('search_stock') }}" method="POST">
-        <label for="symbol">Enter Stock Symbol:</label>
-        <input type="text" id="symbol" name="symbol" required>
-        <button type="submit">Search</button>
-    </form>
-    
-    <h2>Favorite Stocks</h2>
-    <ul>
-        <li><a href="/stocks/AAPL">Apple (AAPL)</a></li>
-        <li><a href="/stocks/GOOGL">Google (GOOGL)</a></li>
-        <li><a href="/stocks/TSLA">Tesla (TSLA)</a></li>
-    </ul>
+{% extends 'base.html' %}
 
-    <h2>User Options</h2>
-    <p>
-        <a href="{{ url_for('login') }}">Login</a> | 
-        <a href="{{ url_for('register') }}">Register</a>
-    </p>
-</body>
-</html>
+{% block title %}Home{% endblock %}
+
+{% block content %}
+    <h1 class="text-center">Welcome to the Stock Tracker</h1>
+    
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6">
+            <h2>Search for Stock</h2>
+            <form action="{{ url_for('search_stock') }}" method="POST" class="form-inline">
+                <div class="mb-3">
+                    <label for="symbol" class="form-label">Enter Stock Symbol:</label>
+                    <input type="text" id="symbol" name="symbol" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6">
+            <h2>Favorite Stocks</h2>
+            <ul class="list-group">
+                <li class="list-group-item"><a href="/stocks/AAPL">Apple (AAPL)</a></li>
+                <li class="list-group-item"><a href="/stocks/GOOGL">Google (GOOGL)</a></li>
+                <li class="list-group-item"><a href="/stocks/TSLA">Tesla (TSLA)</a></li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}

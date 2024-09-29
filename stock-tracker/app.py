@@ -1,9 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-import yfinance as yf
-import plotly.graph_objs as go
-import plotly.io as pio
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a random secret key
@@ -22,31 +20,14 @@ login_manager.login_view = 'login'
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
+    password_hash = db.Column(db.String(100), nullable=False)
     favorite_stocks = db.Column(db.String(100))
 
-    def is_active(self):
-        return True
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
 
-    def is_authenticated(self):
-        return True
-
-    def is_anonymous(self):
-        return False
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
-# Temporary code to drop the User table
-with app.app_context():
-    db.drop_all()  # This will drop all tables, including User and Stock
-    db.create_all()  # This will recreate the tables with the updated schema
-
-
-# Initialize the database
-with app.app_context():
-    db.create_all()
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -58,11 +39,22 @@ def register():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        new_user = User(username=username, password=password)  # Hash the password in a real app
+        
+        # Check if the user already exists
+        if User.query.filter_by(username=username).first():
+            flash('Username already exists. Please choose a different one.', 'error')
+            return redirect(url_for('register'))
+        
+        # Create new user
+        new_user = User(username=username)
+        new_user.set_password(password)
+        
         db.session.add(new_user)
         db.session.commit()
-        flash('Registration successful! You can now log in.')
+        
+        flash('Registration successful! You can now log in.', 'success')
         return redirect(url_for('login'))
+    
     return render_template('register.html')
 
 # Route for user login
@@ -71,12 +63,17 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        user = User.query.filter_by(username=username, password=password).first()  # Password check should be hashed
-        if user:
+        
+        # Check if the user exists
+        user = User.query.filter_by(username=username).first()
+        
+        if user and user.check_password(password):
             login_user(user)
+            flash('Logged in successfully.', 'success')
             return redirect(url_for('home'))
         else:
-            flash('Login failed. Check your credentials.')
+            flash('Login failed. Check your credentials.', 'error')
+    
     return render_template('login.html')
 
 # Route to handle stock search form
@@ -127,6 +124,7 @@ def show_stock(symbol):
 @login_required
 def logout():
     logout_user()
+    flash('You have been logged out.', 'success')
     return redirect(url_for('home'))
 
 @app.route('/')
