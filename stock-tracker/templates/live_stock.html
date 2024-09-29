@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Stock Data</title>
+</head>
+<body>
+    <h1>Live Stock Data for {{ live_data.symbol }}</h1>
+    <ul>
+        <li>Date: {{ live_data.date }}</li>
+        <li>Open: {{ live_data.open }}</li>
+        <li>High: {{ live_data.high }}</li>
+        <li>Low: {{ live_data.low }}</li>
+        <li>Close: {{ live_data.close }}</li>
+        <li>Volume: {{ live_data.volume }}</li>
+    </ul>
+    <a href="/">Back to Home</a>
+</body>
+</html>

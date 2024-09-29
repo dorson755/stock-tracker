@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Data for {{ symbol }}</title>
+</head>
+<body>
+    <h1>Stock Data for {{ symbol }}</h1>
+    <table border="1">
+        <tr>
+            <th>Date</th>
+            <th>Close Price</th>
+            <th>SMA 50</th>
+            <th>RSI 14</th>
+        </tr>
+        {% for stock in stock_data %}
+        <tr>
+            <td>{{ stock.date }}</td>
+            <td>{{ stock.close }}</td>
+            <td>{{ stock.sma_50 }}</td>
+            <td>{{ stock.rsi_14 }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Tracker</title>
+</head>
+<body>
+    <h1>Welcome to the Stock Tracker</h1>
+    
+    <h2>Search for Stock</h2>
+    <form action="{{ url_for('search_stock') }}" method="POST">
+        <label for="symbol">Enter Stock Symbol:</label>
+        <input type="text" id="symbol" name="symbol" required>
+        <button type="submit">Search</button>
+    </form>
+    
+
+    <h2>Favorite Stocks</h2>
+    <ul>
+        <li><a href="/stocks/AAPL">Apple (AAPL)</a></li>
+        <li><a href="/stocks/GOOGL">Google (GOOGL)</a></li>
+        <li><a href="/stocks/TSLA">Tesla (TSLA)</a></li>
+    </ul>
+</body>
+</html>

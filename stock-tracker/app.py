@@ -1,58 +1,54 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 import yfinance as yf
-import os
-import matplotlib.pyplot as plt
+import plotly.graph_objs as go
+import plotly.io as pio
 
 app = Flask(__name__)
 
-# Directory for saving the generated plots
-if not os.path.exists('static/images'):
-    os.makedirs('static/images')
+# Route to handle stock search form
+@app.route('/search_stock', methods=['POST'])
+def search_stock():
+    symbol = request.form.get('symbol').upper()  # Get stock symbol from form
+    return redirect(url_for('show_stock', symbol=symbol))
 
-# Function to fetch stock data and generate the stock signals chart
-def analyze_stock(symbol):
-    stock_data = yf.download(symbol, period='1y', interval='1d')
+@app.route('/stocks/<symbol>', methods=['GET'])
+def show_stock(symbol):
+    # Fetch live data for the stock
+    stock = yf.Ticker(symbol)
+    data = stock.history(period='5d')  # Get the last 5 days' data for better visualization
 
-    # Simple Moving Average (SMA) Calculation
-    stock_data['SMA_50'] = stock_data['Close'].rolling(window=50).mean()
-    
-    # Bollinger Bands Calculation
-    stock_data['BB_upper'] = stock_data['SMA_50'] + 2 * stock_data['Close'].rolling(window=20).std()
-    stock_data['BB_lower'] = stock_data['SMA_50'] - 2 * stock_data['Close'].rolling(window=20).std()
+    if data.empty:
+        return f"No live data found for {symbol}. Please check the stock symbol."
 
-    # Plot the stock price and SMA
-    plt.figure(figsize=(14, 7))
-    plt.plot(stock_data['Close'], label=f'{symbol} Close Price', color='blue', alpha=0.5)
-    plt.plot(stock_data['SMA_50'], label='SMA 50', color='orange', alpha=0.8)
-    plt.title(f'{symbol} Stock Price with SMA 50')
-    plt.legend()
-    plt.grid()
-    plt.tight_layout()
-    plt.savefig(f'static/images/stock_price_sma.png')
-    plt.close()
+    # Create a Plotly graph
+    fig = go.Figure()
 
-    # Plot Bollinger Bands
-    plt.figure(figsize=(14, 7))
-    plt.plot(stock_data['Close'], label=f'{symbol} Close Price', color='blue', alpha=0.5)
-    plt.plot(stock_data['BB_upper'], label='Bollinger Band Upper', color='green', alpha=0.7)
-    plt.plot(stock_data['BB_lower'], label='Bollinger Band Lower', color='red', alpha=0.7)
-    plt.title(f'{symbol} Bollinger Bands')
-    plt.legend()
-    plt.grid()
-    plt.tight_layout()
-    plt.savefig(f'static/images/bollinger_bands.png')
-    plt.close()
+    # Add candlestick chart for the stock price
+    fig.add_trace(go.Candlestick(
+        x=data.index,
+        open=data['Open'],
+        high=data['High'],
+        low=data['Low'],
+        close=data['Close'],
+        name='Stock Price'
+    ))
 
-@app.route('/', methods=['GET', 'POST'])
+    # Set chart title and labels
+    fig.update_layout(
+        title=f'Live Stock Data for {symbol}',
+        xaxis_title='Date',
+        yaxis_title='Price',
+        xaxis_rangeslider_visible=False
+    )
+
+    # Convert Plotly graph to JSON for rendering in HTML
+    graph_json = pio.to_json(fig)
+
+    return render_template('plotly_chart.html', graph_json=graph_json)
+
+@app.route('/')
 def home():
-    symbol = "AAPL"  # Default stock symbol
-    if request.method == 'POST':
-        symbol = request.form['symbol']  # Get stock symbol from the form
-    
-    # Call stock analysis function to generate charts
-    analyze_stock(symbol)
-    
-    return render_template('index.html', symbol=symbol)
+    return render_template('home.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
