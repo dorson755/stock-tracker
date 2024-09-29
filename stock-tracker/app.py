@@ -121,27 +121,27 @@ def get_twitter_api():
         os.getenv('TWITTER_API_KEY'),
         os.getenv('TWITTER_API_SECRET_KEY'),
         os.getenv('TWITTER_ACCESS_TOKEN'),
-        os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
+        os.getenv('TWITTER_ACCESS_TOKEN_SECRET'),
+        os.getenv('TWITTER_BEARER_TOKEN')
     )
     return tweepy.API(auth)
 
-# Function to fetch Bloomberg Twitter feeds
+
+# Function to fetch Bloomberg's latest tweets using Twitter API v2
 def get_bloomberg_twitter_feeds():
-    client = tweepy.Client(bearer_token=os.getenv('TWITTER_BEARER_TOKEN'))
-
-    # Fetch tweets using the v2 timeline endpoint
+    api = get_twitter_api()
     try:
-        response = client.get_users_tweets(id='34713362', max_results=5)  # Bloomberg's Twitter user ID
-        tweets = response.data
-
-        if tweets:
-            return [{'text': tweet.text, 'created_at': tweet.created_at} for tweet in tweets]
-        else:
-            return [{'text': 'No tweets available', 'created_at': ''}]
-    except tweepy.TweepyException as e:
+        # Get Bloomberg's user ID (you can replace this with another user if needed)
+        bloomberg_user = api.get_user(username='business')
+        user_id = bloomberg_user.data.id
+        
+        # Fetch the latest 5 tweets
+        response = api.get_users_tweets(id=user_id, max_results=5, tweet_fields=['created_at', 'text'])
+        tweets = [{'text': tweet.text, 'created_at': tweet.created_at} for tweet in response.data]
+        return tweets
+    except Exception as e:
         print(f"Error fetching tweets: {e}")
-        return [{'text': 'Error fetching tweets', 'created_at': ''}]
-
+        return []
 
 
 
