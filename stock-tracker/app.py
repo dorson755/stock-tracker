@@ -8,6 +8,7 @@ import plotly.io as pio
 import os
 import tweepy
 from dotenv import load_dotenv
+import requests
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a random secret key
@@ -103,12 +104,14 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        user = User.query.filter_by(username=username, password=password).first()  # Password check should be hashed
-        if user:
+        user = User.query.filter_by(username=username).first()  # Get user by username
+        
+        # Use the check_password method for validation
+        if user and user.check_password(password):
             login_user(user)
             return redirect(url_for('dashboard'))  # Redirect to dashboard instead of home
         else:
-            flash('Login failed. Check your credentials.')
+            flash('Login failed. Check your credentials.', 'error')
     return render_template('login.html')
 
 
@@ -124,9 +127,23 @@ def get_twitter_api():
 
 # Function to fetch Bloomberg Twitter feeds
 def get_bloomberg_twitter_feeds():
-    api = get_twitter_api()
-    tweets = api.user_timeline(screen_name='@business', count=5, tweet_mode='extended')
-    return [{'text': tweet.full_text, 'created_at': tweet.created_at} for tweet in tweets]
+    client = tweepy.Client(bearer_token=os.getenv('TWITTER_BEARER_TOKEN'))
+
+    # Fetch tweets using the v2 timeline endpoint
+    try:
+        response = client.get_users_tweets(id='34713362', max_results=5)  # Bloomberg's Twitter user ID
+        tweets = response.data
+
+        if tweets:
+            return [{'text': tweet.text, 'created_at': tweet.created_at} for tweet in tweets]
+        else:
+            return [{'text': 'No tweets available', 'created_at': ''}]
+    except tweepy.TweepyException as e:
+        print(f"Error fetching tweets: {e}")
+        return [{'text': 'Error fetching tweets', 'created_at': ''}]
+
+
+
 
 @app.route('/dashboard')
 @login_required
@@ -135,13 +152,17 @@ def dashboard():
     twitter_feeds = get_bloomberg_twitter_feeds()  # Fetch Twitter feeds
     return render_template('dashboard.html', favorite_stocks=favorite_stocks, twitter_feeds=twitter_feeds)
 
-# Route for news
+# Route and function for news
+def get_stock_news():
+    api_key = os.getenv('NEWS_API_KEY')
+    url = f"https://newsapi.org/v2/everything?q=stocks&apiKey={api_key}"
+    response = requests.get(url)
+    return response.json()['articles']
+
 @app.route('/news')
 def news():
-    # Fetch news data from a stock news API
-    # stock_news = get_stock_news()  # Placeholder for actual function
+    stock_news = get_stock_news()  # Get stock news from API
     return render_template('news.html', stock_news=stock_news)
-
 
 # Route to handle stock search form
 @app.route('/search_stock', methods=['POST'])

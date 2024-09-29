@@ -1,12 +1,15 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block title %}Stock News{% endblock %}
 
 {% block content %}
 <h1>Latest Stock News</h1>
-<ul>
-    {% for news in stock_news %}
-        <li>{{ news.title }} - <a href="{{ news.url }}">Read more</a></li>
+<ul class="list-group">
+    {% for article in stock_news %}
+        <li class="list-group-item">
+            <h5><a href="{{ article.url }}" target="_blank">{{ article.title }}</a></h5>
+            <p>{{ article.description }}</p>
+        </li>
     {% endfor %}
 </ul>
 {% endblock %}
