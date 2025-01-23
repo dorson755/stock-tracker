@@ -6,7 +6,6 @@ import yfinance as yf
 import plotly.graph_objs as go
 import plotly.io as pio
 import os
-import tweepy
 from dotenv import load_dotenv
 import requests
 
@@ -115,42 +114,13 @@ def login():
     return render_template('login.html')
 
 
-# Initialize Tweepy
-def get_twitter_api():
-    auth = tweepy.OAuth1UserHandler(
-        os.getenv('TWITTER_API_KEY'),
-        os.getenv('TWITTER_API_SECRET_KEY'),
-        os.getenv('TWITTER_ACCESS_TOKEN'),
-        os.getenv('TWITTER_ACCESS_TOKEN_SECRET'),
-        os.getenv('TWITTER_BEARER_TOKEN')
-    )
-    return tweepy.API(auth)
-
-
-# Function to fetch Bloomberg's latest tweets using Twitter API v2
-def get_bloomberg_twitter_feeds():
-    api = get_twitter_api()
-    try:
-        # Get Bloomberg's user ID (you can replace this with another user if needed)
-        bloomberg_user = api.get_user(username='business')
-        user_id = bloomberg_user.data.id
-        
-        # Fetch the latest 5 tweets
-        response = api.get_users_tweets(id=user_id, max_results=5, tweet_fields=['created_at', 'text'])
-        tweets = [{'text': tweet.text, 'created_at': tweet.created_at} for tweet in response.data]
-        return tweets
-    except Exception as e:
-        print(f"Error fetching tweets: {e}")
-        return []
-
-
 
 @app.route('/dashboard')
 @login_required
 def dashboard():
     favorite_stocks = FavoriteStock.query.filter_by(user_id=current_user.id).all()
-    twitter_feeds = get_bloomberg_twitter_feeds()  # Fetch Twitter feeds
-    return render_template('dashboard.html', favorite_stocks=favorite_stocks, twitter_feeds=twitter_feeds)
+#    twitter_feeds = get_bloomberg_twitter_feeds()  # Fetch Twitter feeds
+    return render_template('dashboard.html', favorite_stocks=favorite_stocks)
 
 # Route and function for news
 def get_stock_news():

@@ -3,7 +3,6 @@ Flask-SQLAlchemy==3.0.2
 Flask-Login==0.6.2
 plotly==5.10.0
 yfinance==0.2.18
-tweepy==4.13.0
 requests>=2.31
 python-dotenv==0.21.1
 werkzeug==2.2.3
